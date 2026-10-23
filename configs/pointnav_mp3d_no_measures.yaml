@@ -1,0 +1,33 @@
+# @package _global_
+# Same PointNav MP3D sample setup as pointnav_mp3d_sample.yaml, with task
+# measurements removed (distance_to_goal, success, spl, distance_to_goal_reward).
+# RGB, depth, and the pointgoal lab sensor stay on.
+
+defaults:
+  - /benchmark/nav/pointnav/pointnav_mp3d
+  - override /habitat/task/measurements: []
+  - _self_
+
+habitat:
+  dataset:
+    split: train
+    content_scenes: ["17DRP5sb8fy"]
+    data_path: data/datasets/pointnav/mp3d/v1/{split}/{split}.json.gz
+    scenes_dir: data/scene_datasets
+  simulator:
+    scene_dataset: data/scene_datasets/mp3d/mp3d.scene_dataset_config.json
+    habitat_sim_v0:
+      gpu_device_id: 0
+      gpu_gpu: false
+    agents:
+      main_agent:
+        sim_sensors:
+          rgb_sensor:
+            width: 64
+            height: 64
+          depth_sensor:
+            width: 64
+            height: 64
+  task:
+    reward_measure: null
+    success_measure: null

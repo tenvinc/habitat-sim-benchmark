@@ -1,0 +1,16 @@
+# Same image as GPU stack; no NVIDIA runtime. Benchmark sets gpu_device_id=-1.
+# Build once: docker compose -f docker-compose.gpu.yml build
+services:
+  pointnav-cpu:
+    image: habitat-pointnav-bench:latest
+    environment:
+      NVIDIA_VISIBLE_DEVICES: void
+    volumes:
+      - ./data:/workspace/data
+      - ./benchmark:/workspace/benchmark:ro
+      - ./configs:/workspace/configs:ro
+    working_dir: /workspace
+    command:
+      - bash
+      - -lc
+      - source activate habitat && python benchmark/pointnav_step_benchmark.py --device cpu

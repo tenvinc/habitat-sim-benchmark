@@ -1,0 +1,43 @@
+# Dataset / local outputs
+data/
+bench_out.txt
+benchmark/cpu_gpu_comparison.json
+
+# Logs
+*.log
+*.out
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# Build artifacts
+build/
+dist/
+*.whl
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+*.o
+*.a
+*.dylib
+*.dll
+*.exe
+*.obj

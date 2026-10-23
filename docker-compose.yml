@@ -1,0 +1,6 @@
+# One image (build via docker-compose.gpu.yml only):
+#   docker compose -f docker-compose.gpu.yml build
+#   docker compose -f docker-compose.gpu.yml run --rm pointnav-gpu
+#   docker compose -f docker-compose.cpu.yml run --rm pointnav-cpu
+
+services: {}

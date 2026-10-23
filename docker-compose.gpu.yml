@@ -1,0 +1,33 @@
+# Builds habitat-pointnav-bench:latest. CPU compose reuses this image (no second build).
+# Usage: docker compose -f docker-compose.gpu.yml run --rm pointnav-gpu
+services:
+  pointnav-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        HABITAT_BUILD_PARALLEL: "2"
+    image: habitat-pointnav-bench:latest
+    runtime: nvidia
+    ipc: host
+    environment:
+      NVIDIA_VISIBLE_DEVICES: "0"
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics,display
+      HABITAT_SIM_DEFAULT_GPU_ID: "0"
+      __GLX_VENDOR_LIBRARY_NAME: nvidia
+    volumes:
+      - ./data:/workspace/data
+      - ./benchmark:/workspace/benchmark:ro
+      - ./configs:/workspace/configs:ro
+    working_dir: /workspace
+    command:
+      - bash
+      - -lc
+      - source activate habitat && python benchmark/pointnav_step_benchmark.py --device gpu --gpu-id 0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
