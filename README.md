@@ -104,3 +104,57 @@ docker compose -f docker-compose.gpu.yml run --rm --no-deps pointnav-gpu \
 ```
 
 `--batch-renderer` requires `--parallel vector` and `--device gpu`. It cannot be combined with `--gpu-gpu`. `--no-measures` is for single-env only.
+
+## Expected results
+
+The following results were measured on a machine with these specifications., 
+
+| | |
+|---|---|
+| CPU | AMD Ryzen 7 3700X (8 cores / 16 threads) |
+| RAM | 32 GiB |
+| GPU | NVIDIA GeForce RTX 2070 SUPER (8192 MiB) |
+| Driver | 615.71.09 |
+| Image | Habitat-Sim v0.3.3 (CUDA, headless, bullet), Habitat-Lab stable |
+
+They were run using the scene `17DRP5sb8fy`, 64×64 RGB + depth, 1 episode, seed 7.  Each experiment was ran for 20 warmup steps which were not timed, and then for 200 steps which were timed.
+
+### Single env
+
+Below are the results for a single environment.
+
+| | CPU | GPU | GPU no measures |
+|---|---:|---:|---:|
+| Step mean (ms) | 11.66 | 0.75 | 0.67 |
+| Step median (ms) | 8.71 | 0.65 | 0.50 |
+| Step p95 (ms) | 23.97 | 1.73 | 1.82 |
+| Steps/sec | 85.8 | 1325.1 | 1499.9 |
+| Reset mean (ms) | 141.99 | 17.99 | 15.03 |
+
+### Parallel GPU sweep
+
+Steps/sec is computed by taking the cumulative number of steps for all environments and dividing over the total time taken. VRAM represents the amount of additional GPU VRAM allocated during the experiments.
+
+| envs | threaded (ms per multi-step) | threaded (steps/s) | vector (ms per multi-step) | vector (steps/s) | vector VRAM (MiB) |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0.89 | 1123.8 | 1.34 | 743.7 | 701 |
+| 3 | 2.97 | 1011.4 | 2.12 | 1412.4 | 2103 |
+| 5 | 5.10 | 981.2 | 2.73 | 1834.4 | 3489 |
+| 7 | 8.40 | 833.3 | 3.23 | 2169.5 | 4906 |
+| 9 | 9.61 | 936.7 | 4.11 | 2192.3 | 6311 |
+
+At 9 envs, batch renderer (RGB only) was 9.46 ms / 951.8 steps/s and 975 MiB VRAM. Most of that step time was `post_step()` draw GPU→CPU (8.33 ms).
+
+### Vector, frames kept in CUDA
+
+These results are obtained using the gpu2gpu transfer function in habitat, keeping the frames entirely in GPU, but converting it to CUDA pytorch tensors. In practice, this allows you to work with the output of the simulation as pytorch tensors, while not incurring the GPU to CPU read cost.
+
+
+| envs | step ms | steps/s | VRAM (MiB) |
+|---:|---:|---:|---:|
+| 1 | 0.64 | 1555.7 | 805 |
+| 3 | 0.89 | 3358.9 | 2378 |
+| 5 | 0.95 | 5259.6 | 3990 |
+| 7 | 1.57 | 4467.9 | 5634 |
+
+Note that 9-env configuration were not tested, because the program would run out of GPU memory for the test machine.
